@@ -20,6 +20,11 @@
 
 package net.bunnehrealm.realmbanmanager.utils;
 
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import net.bunnehrealm.realmbanmanager.MainClass;
 import net.bunnehrealm.realmbanmanager.listeners.CommandListener;
 
@@ -27,10 +32,12 @@ public class BanManager {
 
 	MainClass MainClass;
 	CommandListener CommandListener;
+
 	public BanManager(MainClass MainClass) {
 		this.MainClass = MainClass;
 	}
-	public BanManager(CommandListener CommandListener){
+
+	public BanManager(CommandListener CommandListener) {
 		this.CommandListener = CommandListener;
 	}
 
@@ -44,20 +51,39 @@ public class BanManager {
 	public void unBan(String player_UUID) {
 		MainClass.loadBans();
 		MainClass.bans.set(player_UUID + ".permabanned", null);
-		MainClass.bans.set(player_UUID + ".reason", null);
 		MainClass.bans.set(player_UUID + ".banned", null);
-		MainClass.saveBans();
-	}
-	public void Ban(String player_UUID, String reason){
-		MainClass.loadBans();
-		MainClass.bans.set(player_UUID + ".permabanned", true);
-		MainClass.bans.set(player_UUID + ".reason", reason); 
+		MainClass.bans.set(player_UUID + ".unbantime", null);
+		MainClass.bans.set(player_UUID + ".reason", null);
 		MainClass.saveBans();
 	}
 
-	public void tempBan(String player_UUID, String time, String reason) {
+	public void Ban(UUID uuid, String reason) {
+		MainClass.loadBans();
+		MainClass.bans.set(uuid + ".permabanned", true);
+		MainClass.bans.set(uuid + ".reason", reason);
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (p.getUniqueId().equals(uuid)) {
+				p.kickPlayer(reason);
+			}
+		}
+		MainClass.saveBans();
+	}
+
+	public void tempBan(Player p, UUID player_UUID, String time, String reason) {
+		time.replace("m", "*60");
+		time.replace("h", "*60*60");
+		time.replace("d", "*60*60*24");
+		try{
+			Integer.parseInt(time);
+			}
+		catch(Exception e){
+			p.sendMessage("Incorrect time format!");
+			return;
+		}
+		int finaltime = Integer.parseInt(time);
 		MainClass.loadBans();
 		MainClass.bans.set(player_UUID + ".banned", true);
+		MainClass.bans.set(player_UUID + ".unbantime", MainClass.timer + finaltime);
 		MainClass.bans.set(player_UUID + ".reason", reason);
 		MainClass.saveBans();
 	}

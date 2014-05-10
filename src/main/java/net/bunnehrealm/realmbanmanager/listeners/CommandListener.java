@@ -20,9 +20,12 @@
 
 package net.bunnehrealm.realmbanmanager.listeners;
 
+import java.util.UUID;
+
 import net.bunnehrealm.realmbanmanager.MainClass;
 import net.bunnehrealm.realmbanmanager.utils.BanManager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,28 +53,39 @@ public class CommandListener implements Listener{
         String[] args = cmd.split(" ");
         if(cmd.startsWith("/ban")){
             e.setCancelled(true);
-            if(!(args.length != 1) && !(args.length != 2)){
+            if((args.length == 0) || (args.length == 1)){
                 cs.sendMessage(ChatColor.RED + "Correct Usage: " + ChatColor.AQUA + "/ban <player> [reason]");
                 return;
             }
             else{
                 if(cs.hasPermission("BanManager.ban") || cs.isOp() || !(cs instanceof Player)){
                     StringBuilder sb = new StringBuilder();
-                    for(int x = 1; x < args.length; x++){
+                    for(int x = 2; x < args.length; x++){
                         sb.append(" ").append(args[x]);
                     }
+                    
                     String ban_msg = sb.toString();
-                    bm.Ban(MainClass.getServer().getPlayer(args[0]).getUniqueId().toString(), ban_msg);
+                    Ban(Bukkit.getPlayer(args[1]).getUniqueId(), ban_msg);
                 }
                 else{
                     cs.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
                 }
             }
         }
-
+        else if(cmd.startsWith("/tempban")){
+        	if(args.length != 1){}
+        }
     }
-    public void ban(){
 
-
-    }
+	public void Ban(UUID uuid, String reason) {
+		MainClass.loadBans();
+		MainClass.bans.set(uuid + ".permabanned", true);
+		MainClass.bans.set(uuid + ".reason", reason);
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (p.getUniqueId().equals(uuid)) {
+				p.kickPlayer(reason);
+			}
+		}
+		MainClass.saveBans();
+	}
 }
