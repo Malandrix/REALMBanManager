@@ -3,3 +3,6 @@ main: net.bunnehrealm.realmbanmanager.MainClass
 version: 1.0
 description: >
             Issue and Maintain bans.
+commands:
+  tempban:
+    description: Temp ban a player

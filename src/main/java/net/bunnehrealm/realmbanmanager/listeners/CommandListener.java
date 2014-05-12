@@ -35,47 +35,47 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 /**
  * Created by Rory Finnegan on 5/8/14.
  */
-public class CommandListener implements Listener{
-    MainClass MainClass;
-    BanManager BanManager;
-    public CommandListener(MainClass MainClass){
-        this.MainClass = MainClass;
-    }
-    public CommandListener(BanManager BanManager){
-        this.BanManager = BanManager;
-    }
+public class CommandListener implements Listener {
+	MainClass MainClass;
+	BanManager BanManager;
 
-    @EventHandler
-    public void onCommand(PlayerCommandPreprocessEvent e){
-    	BanManager bm = new BanManager(MainClass);
-        Player cs = e.getPlayer();
-        String cmd = e.getMessage();
-        String[] args = cmd.split(" ");
-        if(cmd.startsWith("/ban")){
-            e.setCancelled(true);
-            if((args.length == 0) || (args.length == 1)){
-                cs.sendMessage(ChatColor.RED + "Correct Usage: " + ChatColor.AQUA + "/ban <player> [reason]");
-                return;
-            }
-            else{
-                if(cs.hasPermission("BanManager.ban") || cs.isOp() || !(cs instanceof Player)){
-                    StringBuilder sb = new StringBuilder();
-                    for(int x = 2; x < args.length; x++){
-                        sb.append(" ").append(args[x]);
-                    }
-                    
-                    String ban_msg = sb.toString();
-                    Ban(Bukkit.getPlayer(args[1]).getUniqueId(), ban_msg);
-                }
-                else{
-                    cs.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
-                }
-            }
-        }
-        else if(cmd.startsWith("/tempban")){
-        	if(args.length != 1){}
-        }
-    }
+	public CommandListener(MainClass MainClass) {
+		this.MainClass = MainClass;
+	}
+
+	public CommandListener(BanManager BanManager) {
+		this.BanManager = BanManager;
+	}
+
+	@EventHandler
+	public void onCommand(PlayerCommandPreprocessEvent e) {
+		BanManager bm = new BanManager(MainClass);
+		Player cs = e.getPlayer();
+		String cmd = e.getMessage();
+		String[] args = cmd.split(" ");
+		if (cmd.startsWith("/ban")) {
+			e.setCancelled(true);
+			if ((args.length == 0) || (args.length == 1)) {
+				cs.sendMessage(ChatColor.RED + "Correct Usage: "
+						+ ChatColor.AQUA + "/ban <player> [reason]");
+				return;
+			} else {
+				if (cs.hasPermission("BanManager.ban") || cs.isOp()
+						|| !(cs instanceof Player)) {
+					StringBuilder sb = new StringBuilder();
+					for (int x = 2; x < args.length; x++) {
+						sb.append(" ").append(args[x]);
+					}
+
+					String ban_msg = sb.toString();
+					Ban(Bukkit.getPlayer(args[1]).getUniqueId(), ban_msg);
+				} else {
+					cs.sendMessage(ChatColor.RED
+							+ "You do not have permission to use this command!");
+				}
+			}
+		} 
+	}
 
 	public void Ban(UUID uuid, String reason) {
 		MainClass.loadBans();
@@ -88,4 +88,6 @@ public class CommandListener implements Listener{
 		}
 		MainClass.saveBans();
 	}
+
+	
 }

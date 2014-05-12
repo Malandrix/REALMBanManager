@@ -19,12 +19,19 @@
  */
 package net.bunnehrealm.realmbanmanager.listeners;
 
+import java.math.BigInteger;
+
 import net.bunnehrealm.realmbanmanager.MainClass;
 import net.bunnehrealm.realmbanmanager.utils.BanManager;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 
 public class JoinListener implements Listener {
 	MainClass MainClass;
@@ -35,22 +42,34 @@ public class JoinListener implements Listener {
 	}
 
 	@EventHandler
-	public void onJoin(PlayerJoinEvent e) {
-
-		Player p = e.getPlayer();
-
-		if (MainClass.bans.getBoolean(p.getUniqueId().toString() + ".banned")
-				|| MainClass.bans.getBoolean(p.getUniqueId() + ".permabanned")) {
-
-			p.kickPlayer(bm.getReason(p.getUniqueId().toString()));
-
-		}
-
+	public void onJoin(AsyncPlayerPreLoginEvent e) {
+		Player p = Bukkit.getPlayer(e.getName());
 		if (!(MainClass.bans.contains(p.getUniqueId().toString()))) {
-
-			MainClass.bans.set(e.getPlayer().getUniqueId().toString(), " ");
-
+			MainClass.bans.set(p.getUniqueId().toString() + ".permabanned", false);
+			MainClass.bans.set(p.getUniqueId().toString() + ".unbantime", false);
+			MainClass.bans.set(p.getUniqueId().toString() + ".reason", "");
 		}
+
+
+		if (MainClass.bans.getBoolean(p.getUniqueId() + ".permabanned")) {
+			e.disallow(Result.KICK_BANNED, ChatColor.RED
+					+ "You have been banned for:"
+					+ getReason(p.getUniqueId().toString()));
+		}
+		else if(MainClass.bans.getLong(p.getUniqueId().toString() + ".unbantime") > MainClass.bans.getLong("Timer")){
+			e.disallow(Result.KICK_BANNED, ChatColor.RED
+					+ "You have been banned for:"
+					+ getReason(p.getUniqueId().toString()));
+		}
+
+		
+	}
+
+	public String getReason(String player_UUID) {
+		MainClass.loadBans();
+		String reason = null;
+		reason = MainClass.bans.getString(player_UUID + ".reason");
+		return reason;
 	}
 
 }

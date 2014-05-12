@@ -19,10 +19,11 @@
  */
 package net.bunnehrealm.realmbanmanager;
 
+import net.bunnehrealm.realmbanmanager.listeners.CommandListener;
 import net.bunnehrealm.realmbanmanager.listeners.JoinListener;
 import net.bunnehrealm.realmbanmanager.utils.BanManager;
 import net.bunnehrealm.realmbanmanager.utils.CommandManager;
-import net.bunnehrealm.realmbanmanager.listeners.CommandListener;
+
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -34,13 +35,15 @@ import java.io.File;
 public class MainClass extends JavaPlugin {
 
 	public int timer;
-	public MainClass MainClass;
+	public static MainClass MainClass;
 	public JoinListener jl = new JoinListener(this);
 	public BanManager bm = new BanManager(this);
     public CommandListener cl = new CommandListener(this);
+    public CommandManager cm = new CommandManager(this);
 	public File bansFile;
 	public FileConfiguration bans;
-
+	public static Plugin plugin = MainClass;
+	
 	@Override
 	public void onDisable() {
 
@@ -68,7 +71,9 @@ public class MainClass extends JavaPlugin {
 			PluginManager pm = getServer().getPluginManager();
 			pm.registerEvents(jl, this);
             pm.registerEvents(cl, this);
-
+            
+            getCommand("tempban").setExecutor(cm);
+            
 			timer = bm.loadTime();
 			BukkitScheduler bs = getServer().getScheduler();
 			bs.scheduleSyncRepeatingTask(this,
