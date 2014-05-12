@@ -35,14 +35,14 @@ import java.io.File;
 public class MainClass extends JavaPlugin {
 
 	public int timer;
-	public static MainClass MainClass;
+	public MainClass MainClass;
 	public JoinListener jl = new JoinListener(this);
 	public BanManager bm = new BanManager(this);
     public CommandListener cl = new CommandListener(this);
     public CommandManager cm = new CommandManager(this);
 	public File bansFile;
 	public FileConfiguration bans;
-	public static Plugin plugin = MainClass;
+	public Plugin plugin = MainClass;
 	
 	@Override
 	public void onDisable() {
